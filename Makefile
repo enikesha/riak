@@ -1,4 +1,8 @@
 REPO 		?= riak
+export ICU_CFLAGS=$(shell icu-config --cppflags-searchpath) \
+                  $(shell icu-config --cflags)
+export ICU_LDFLAGS=$(shell icu-config --ldflags) \
+                   $(shell icu-config --ldflags-icuio)
 
 .PHONY: rel stagedevrel deps
 
