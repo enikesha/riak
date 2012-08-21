@@ -29,15 +29,15 @@ if ([ "$RUNNER_USER" ] && [ "x$WHOAMI" != "x$RUNNER_USER" ]); then
         echo "sudo doesn't appear to be installed and your EUID isn't $RUNNER_USER" 1>&2
         exit 1
     fi
-    echo "Attempting to restart script through sudo -u $RUNNER_USER"
-    exec sudo -u $RUNNER_USER -i $RUNNER_SCRIPT_DIR/$RUNNER_SCRIPT $@
+    echo "Attempting to restart script through sudo -H -u $RUNNER_USER"
+    exec sudo -H -u $RUNNER_USER -i $RUNNER_SCRIPT_DIR/$RUNNER_SCRIPT $@
 fi
 
 # Make sure CWD is set to runner base dir
 cd $RUNNER_BASE_DIR
 
 # Extract the target node name from node.args
-NAME_ARG=`grep '\-[s]*name' $RUNNER_ETC_DIR/vm.args`
+NAME_ARG=`egrep "^ *-s?name" $RUNNER_ETC_DIR/vm.args`
 if [ -z "$NAME_ARG" ]; then
     echo "vm.args needs to have either -name or -sname parameter."
     exit 1

@@ -36,8 +36,8 @@ if ([ "$RUNNER_USER" ] && [ "x$WHOAMI" != "x$RUNNER_USER" ]); then
         echo "sudo doesn't appear to be installed and your EUID isn't $RUNNER_USER" 1>&2
         exit 1
     fi
-    echo "Attempting to restart script through sudo -u $RUNNER_USER"
-    exec sudo -u $RUNNER_USER -i $RUNNER_SCRIPT_DIR/$RUNNER_SCRIPT $@
+    echo "Attempting to restart script through sudo -H -u $RUNNER_USER"
+    exec sudo -H -u $RUNNER_USER -i $RUNNER_SCRIPT_DIR/$RUNNER_SCRIPT $@
 fi
 
 # Warn the user if ulimit -n is less than 1024
@@ -167,7 +167,7 @@ case "$1" in
                 ;;
             SunOS)
                 # PID COMMAND
-                PID=`ps -ef -o pid= -o args=|\
+                PID=`/usr/bin/ps -ef -o pid= -o args=|\
                     grep "$RUNNER_BASE_DIR/.*/[b]eam"|awk '{print $1}'`
                 ;;
         esac
@@ -210,12 +210,16 @@ case "$1" in
         ;;
 
     attach)
-        # Make sure a node IS running
-        RES=`ping_node`
-        ES=$?
-        if [ "$ES" -ne 0 ]; then
-            echo "Node is not running!"
-            exit $ES
+        if [ "$2" = "-f" ]; then
+          echo "Forcing connection..."
+        else  
+          # Make sure a node is running
+          RES=`ping_node`
+          ES=$?
+          if [ "$ES" -ne 0 ]; then
+              echo "Node is not running!"
+              exit $ES
+          fi
         fi
 
         shift
